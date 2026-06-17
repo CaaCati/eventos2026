@@ -291,7 +291,7 @@
             <div id="authMessage"></div>
             <input type="password" id="passwordInput" placeholder="Contraseña" />
             <br>
-            <button class="btn" style="width:100%;" onclick="handleAuth()">🔐 Ingresar</button>
+            <button class="btn" id="loginBtn" style="width:100%;" onclick="handleAuth()">🔐 Ingresar</button>
         </div>
 
         <div id="mainContent" class="hidden">
@@ -311,13 +311,21 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="eventStartTime">Hora de Inicio *</label>
-                            <input type="time" id="eventStartTime" required>
+                            <label>Hora de Inicio *</label>
+                            <div style="display:flex; gap:8px; align-items:center;">
+                                <select id="eventStartTimeHH" required style="flex:1;"></select>
+                                <span>:</span>
+                                <select id="eventStartTimeMM" required style="flex:1;"></select>
+                            </div>
                         </div>
 
                         <div class="form-group">
-                            <label for="eventEndTime">Hora de Finalización *</label>
-                            <input type="time" id="eventEndTime" required>
+                            <label>Hora de Finalización *</label>
+                            <div style="display:flex; gap:8px; align-items:center;">
+                                <select id="eventEndTimeHH" required style="flex:1;"></select>
+                                <span>:</span>
+                                <select id="eventEndTimeMM" required style="flex:1;"></select>
+                            </div>
                         </div>
 
                         <div class="form-group">
@@ -340,7 +348,7 @@
                             <textarea id="eventObs" placeholder="Información adicional, notas, comentarios..."></textarea>
                         </div>
 
-                        <button type="submit" class="btn btn-success" style="width: 100%;">💾 Guardar Evento</button>
+                        <button type="submit" id="submitBtn" class="btn btn-success" style="width: 100%;">💾 Guardar Evento</button>
                     </form>
                 </div>
 
@@ -368,10 +376,64 @@
 
     <script>
         // ⚠️ REEMPLAZAR con la URL de tu Apps Script desplegado como Web App
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwClLUrXsdIDDmUJw-AcVzWkO7_E5Zx3EOEPCwWRlsQGuGJRcD1UyV0YidclS5V6xcB/exec';
+        const SCRIPT_URL = 'PEGAR_AQUI_LA_URL_DE_TU_APPS_SCRIPT';
 
         let sessionPassword = null; // se guarda solo en memoria, nunca en localStorage
         let editingEventId = null;
+
+        // ----- SELECTS DE HORA (24hs garantizado, independiente del idioma/formato del dispositivo) -----
+        function populateTimeSelects() {
+            const hourIds = ['eventStartTimeHH', 'eventEndTimeHH'];
+            const minuteIds = ['eventStartTimeMM', 'eventEndTimeMM'];
+
+            hourIds.forEach(id => {
+                const select = document.getElementById(id);
+                for (let h = 0; h < 24; h++) {
+                    const opt = document.createElement('option');
+                    opt.value = String(h).padStart(2, '0');
+                    opt.textContent = String(h).padStart(2, '0');
+                    select.appendChild(opt);
+                }
+            });
+
+            minuteIds.forEach(id => {
+                const select = document.getElementById(id);
+                for (let m = 0; m < 60; m += 5) {
+                    const opt = document.createElement('option');
+                    opt.value = String(m).padStart(2, '0');
+                    opt.textContent = String(m).padStart(2, '0');
+                    select.appendChild(opt);
+                }
+            });
+        }
+
+        function getStartTime() {
+            return `${document.getElementById('eventStartTimeHH').value}:${document.getElementById('eventStartTimeMM').value}`;
+        }
+
+        function getEndTime() {
+            return `${document.getElementById('eventEndTimeHH').value}:${document.getElementById('eventEndTimeMM').value}`;
+        }
+
+        function setStartTime(hhmm) {
+            const [hh, mm] = hhmm.split(':');
+            document.getElementById('eventStartTimeHH').value = hh;
+            document.getElementById('eventStartTimeMM').value = roundToNearestStep(mm);
+        }
+
+        function setEndTime(hhmm) {
+            const [hh, mm] = hhmm.split(':');
+            document.getElementById('eventEndTimeHH').value = hh;
+            document.getElementById('eventEndTimeMM').value = roundToNearestStep(mm);
+        }
+
+        // Los selects de minutos van de 5 en 5; si un evento viejo tiene un minuto "raro" (ej. 07),
+        // lo redondeamos al múltiplo de 5 más cercano para poder seleccionarlo.
+        function roundToNearestStep(mm) {
+            const value = parseInt(mm, 10);
+            const rounded = Math.round(value / 5) * 5;
+            return String(rounded % 60).padStart(2, '0');
+        }
 
         // ----- AUTENTICACIÓN -----
         async function handleAuth() {
@@ -381,6 +443,11 @@
                 return;
             }
 
+            const loginBtn = document.getElementById('loginBtn');
+            if (loginBtn.disabled) return; // ya se está procesando
+
+            loginBtn.disabled = true;
+            loginBtn.textContent = '⏳ Verificando...';
             showAuthMessage('loading', 'Verificando...');
 
             try {
@@ -398,6 +465,9 @@
             } catch (err) {
                 console.error(err);
                 showAuthMessage('error', '❌ Error de conexión con el servidor');
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = '🔐 Ingresar';
             }
         }
 
@@ -413,6 +483,8 @@
 
         // Permitir Enter para loguear
         document.addEventListener('DOMContentLoaded', () => {
+            populateTimeSelects();
+
             const input = document.getElementById('passwordInput');
             input.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') handleAuth();
@@ -486,8 +558,8 @@
               ${event.observaciones ? `<div class="event-desc">📝 ${event.observaciones}</div>` : ''}
 
               <div class="event-actions">
-                <button class="btn btn-small" onclick='editEvent(${JSON.stringify(event.id)})'>✏️ Editar</button>
-                <button class="btn btn-small btn-delete" onclick='deleteEvent(${JSON.stringify(event.id)})'>🗑️ Eliminar</button>
+                <button class="btn btn-small" onclick='editEvent(${JSON.stringify(event.id)}, this)'>✏️ Editar</button>
+                <button class="btn btn-small btn-delete" onclick='deleteEvent(${JSON.stringify(event.id)}, this)'>🗑️ Eliminar</button>
               </div>
             `;
 
@@ -498,10 +570,13 @@
         document.getElementById('eventForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn.disabled) return; // ya se está procesando, ignorar clicks extra
+
             const title = document.getElementById('eventTitle').value;
             const date = document.getElementById('eventDate').value;
-            const startTime = document.getElementById('eventStartTime').value;
-            const endTime = document.getElementById('eventEndTime').value;
+            const startTime = getStartTime();
+            const endTime = getEndTime();
             const area = document.getElementById('eventArea').value;
             const obs = document.getElementById('eventObs').value;
 
@@ -522,6 +597,10 @@
                 area: area,
                 observaciones: obs
             };
+
+            const originalBtnText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Guardando...';
 
             try {
                 const action = editingEventId ? 'update' : 'create';
@@ -544,10 +623,19 @@
             } catch (err) {
                 console.error('Error saving event:', err);
                 showMessage('error', '❌ Error de conexión al guardar el evento');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalBtnText;
             }
         });
 
-        async function editEvent(eventId) {
+        async function editEvent(eventId, btn) {
+            if (btn && btn.disabled) return;
+            const originalText = btn ? btn.textContent : null;
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = '⏳';
+            }
             // Buscamos el evento entre los que ya están renderizados pidiendo la lista actual
             try {
                 const res = await fetch(`${SCRIPT_URL}?action=list&password=${encodeURIComponent(sessionPassword)}`);
@@ -564,8 +652,8 @@
 
                 document.getElementById('eventTitle').value = event.titulo || '';
                 document.getElementById('eventDate').value = event.fecha;
-                document.getElementById('eventStartTime').value = event.horaInicio;
-                document.getElementById('eventEndTime').value = event.horaFin;
+                setStartTime(event.horaInicio);
+                setEndTime(event.horaFin);
                 document.getElementById('eventArea').value = event.area || '';
                 document.getElementById('eventObs').value = event.observaciones || '';
 
@@ -576,13 +664,25 @@
             } catch (err) {
                 console.error('Error editing event:', err);
                 showMessage('error', '❌ No se pudo cargar el evento para editar');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                }
             }
         }
 
         // ----- ELIMINAR -----
-        async function deleteEvent(eventId) {
+        async function deleteEvent(eventId, btn) {
+            if (btn && btn.disabled) return;
             if (!confirm('¿Estás seguro de que deseas eliminar este evento?')) {
                 return;
+            }
+
+            const originalText = btn ? btn.textContent : null;
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = '⏳';
             }
 
             try {
@@ -603,6 +703,11 @@
             } catch (err) {
                 console.error('Error deleting event:', err);
                 showMessage('error', '❌ Error al eliminar el evento');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                }
             }
         }
 
