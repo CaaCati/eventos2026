@@ -1,0 +1,22 @@
+{
+  "name": "Gestión de Eventos",
+  "short_name": "Eventos",
+  "description": "Sistema de gestión de eventos municipal",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#050505",
+  "orientation": "portrait-primary",
+  "scope": ".",
+  "icons": [
+    {
+      "src": "eventos.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities"],
+  "lang": "es-AR",
+  "dir": "ltr"
+}
