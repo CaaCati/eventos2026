@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mesa de Entrada Municipal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .auth-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            text-align: center;
+            margin-bottom: 20px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .auth-section input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .auth-section input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .event-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .event-item {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 5px solid #667eea;
+            transition: transform 0.2s;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .event-item:hover {
+            transform: translateX(5px);
+        }
+
+        .event-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .event-hour {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .event-status {
+            font-size: 0.85em;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 12px;
+        }
+
+        .event-status.pendiente {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .event-status.completado {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .event-title {
+            font-weight: 700;
+            color: #333;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        .event-meta {
+            font-size: 0.9em;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .event-desc {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 5px;
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .event-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 6px 15px;
+            font-size: 0.85em;
+        }
+
+        .btn-delete {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Mesa de Entrada Municipal</h1>
+            <p>Sistema de Gestión de Eventos</p>
+        </div>
+
+        <div id="authSection" class="auth-section">
+            <h2 style="color:#667eea; margin-bottom: 15px;">🔒 Acceso al Sistema</h2>
+            <p style="margin-bottom: 20px; color:#555;">Ingresá la contraseña para continuar</p>
+            <div id="authMessage"></div>
+            <input type="password" id="passwordInput" placeholder="Contraseña" />
+            <br>
+            <button class="btn" style="width:100%;" onclick="handleAuth()">🔐 Ingresar</button>
+        </div>
+
+        <div id="mainContent" class="hidden">
+            <div class="content-grid">
+                <div class="card">
+                    <h2>➕ Nuevo Evento</h2>
+                    <div id="formMessage"></div>
+                    <form id="eventForm">
+                        <div class="form-group">
+                            <label for="eventTitle">Título del Trámite *</label>
+                            <input type="text" id="eventTitle" required placeholder="Ej: Solicitud de permiso de construcción">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="eventDate">Fecha *</label>
+                            <input type="date" id="eventDate" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="eventStartTime">Hora de Inicio *</label>
+                            <input type="time" id="eventStartTime" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="eventEndTime">Hora de Finalización *</label>
+                            <input type="time" id="eventEndTime" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="eventArea">Área/Destino *</label>
+                            <select id="eventArea" required>
+                                <option value="">Seleccionar área...</option>
+                                <option value="Acción Social">Acción Social</option>
+                                <option value="Cultura">Cultura</option>
+                                <option value="Deportes">Deportes</option>
+                                <option value="Hacienda">Hacienda</option>
+                                <option value="Tránsito">Tránsito</option>
+                                <option value="Obras Públicas">Obras Públicas</option>
+                                <option value="Particular">Particular</option>
+                                <option value="Otros">Otros</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="eventObs">Observaciones</label>
+                            <textarea id="eventObs" placeholder="Información adicional, notas, comentarios..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-success" style="width: 100%;">💾 Guardar Evento</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h2>📅 Eventos Programados</h2>
+                    <div class="form-group" style="display:flex; gap:10px; align-items:end;">
+                         <div style="flex:1;">
+                             <label for="filterFrom">Desde</label>
+                             <input type="date" id="filterFrom">
+                        </div>
+                        <div style="flex:1;">
+                            <label for="filterTo">Hasta</label>
+                            <input type="date" id="filterTo">
+                        </div>
+                        <button class="btn btn-secondary btn-small" onclick="applyDateFilter()">Filtrar</button>
+                   </div>
+                    <button class="btn btn-secondary" onclick="loadEvents()" style="width: 100%; margin-bottom: 15px;">🔄 Actualizar Lista</button>
+                    <div id="eventsList" class="event-list">
+                        <div class="loading">Cargando eventos...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ⚠️ REEMPLAZAR con la URL de tu Apps Script desplegado como Web App
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwClLUrXsdIDDmUJw-AcVzWkO7_E5Zx3EOEPCwWRlsQGuGJRcD1UyV0YidclS5V6xcB/exec';
+
+        let sessionPassword = null; // se guarda solo en memoria, nunca en localStorage
+        let editingEventId = null;
+
+        // ----- AUTENTICACIÓN -----
+        async function handleAuth() {
+            const pwd = document.getElementById('passwordInput').value;
+            if (!pwd) {
+                showAuthMessage('error', 'Ingresá la contraseña');
+                return;
+            }
+
+            showAuthMessage('loading', 'Verificando...');
+
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=login&password=${encodeURIComponent(pwd)}`);
+                const data = await res.json();
+
+                if (data.ok) {
+                    sessionPassword = pwd;
+                    document.getElementById('authSection').classList.add('hidden');
+                    document.getElementById('mainContent').classList.remove('hidden');
+                    loadEvents();
+                } else {
+                    showAuthMessage('error', '❌ Contraseña incorrecta');
+                }
+            } catch (err) {
+                console.error(err);
+                showAuthMessage('error', '❌ Error de conexión con el servidor');
+            }
+        }
+
+        function showAuthMessage(type, message) {
+            const div = document.getElementById('authMessage');
+            if (type === 'loading') {
+                div.innerHTML = `<p style="color:#667eea; margin-bottom:10px;">${message}</p>`;
+            } else {
+                div.className = type;
+                div.textContent = message;
+            }
+        }
+
+        // Permitir Enter para loguear
+        document.addEventListener('DOMContentLoaded', () => {
+            const input = document.getElementById('passwordInput');
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleAuth();
+            });
+        });
+
+        // ----- CARGA Y FILTRO DE EVENTOS -----
+        async function loadEvents(from = null, to = null) {
+            const eventsList = document.getElementById('eventsList');
+            eventsList.innerHTML = '<div class="loading">Cargando eventos...</div>';
+
+            try {
+                let url = `${SCRIPT_URL}?action=list&password=${encodeURIComponent(sessionPassword)}`;
+                if (from) url += `&from=${from}`;
+                if (to) url += `&to=${to}`;
+
+                const res = await fetch(url);
+                const data = await res.json();
+
+                if (!data.ok) {
+                    eventsList.innerHTML = `<div class="error">${data.error || 'Error al cargar eventos'}</div>`;
+                    return;
+                }
+
+                const events = data.events;
+
+                if (events.length === 0) {
+                    eventsList.innerHTML = '<p style="text-align: center; color: #999;">No hay eventos programados</p>';
+                    return;
+                }
+
+                eventsList.innerHTML = '';
+                events.forEach(event => {
+                    eventsList.appendChild(createEventElement(event));
+                });
+            } catch (err) {
+                console.error('Error loading events:', err);
+                eventsList.innerHTML = '<div class="error">Error al cargar eventos. Por favor, intenta nuevamente.</div>';
+            }
+        }
+
+        function applyDateFilter() {
+            const from = document.getElementById('filterFrom').value;
+            const to = document.getElementById('filterTo').value;
+            loadEvents(from || null, to || null);
+        }
+
+        function createEventElement(event) {
+            const div = document.createElement('div');
+            div.className = 'event-item';
+
+            const startLabel = event.horaInicio;
+            const endLabel = event.horaFin;
+            const fechaLabel = new Date(event.fecha + 'T00:00:00').toLocaleDateString('es-AR');
+
+            div.innerHTML = `
+              <div class="event-top">
+                <div class="event-hour">🕒 ${startLabel} – ${endLabel}</div>
+                <span class="event-status ${event.estado}">
+                  ${event.estado === 'pendiente' ? '🟡 Pendiente' : '🟢 Completado'}
+                </span>
+              </div>
+
+              <div class="event-title">📌 ${event.titulo}</div>
+
+              <div class="event-meta">
+                📅 ${fechaLabel}
+                &nbsp;&nbsp; 🏢 ${event.area || 'No especificada'}
+              </div>
+
+              ${event.observaciones ? `<div class="event-desc">📝 ${event.observaciones}</div>` : ''}
+
+              <div class="event-actions">
+                <button class="btn btn-small" onclick='editEvent(${JSON.stringify(event.id)})'>✏️ Editar</button>
+                <button class="btn btn-small btn-delete" onclick='deleteEvent(${JSON.stringify(event.id)})'>🗑️ Eliminar</button>
+              </div>
+            `;
+
+            return div;
+        }
+
+        // ----- CREAR / EDITAR -----
+        document.getElementById('eventForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const title = document.getElementById('eventTitle').value;
+            const date = document.getElementById('eventDate').value;
+            const startTime = document.getElementById('eventStartTime').value;
+            const endTime = document.getElementById('eventEndTime').value;
+            const area = document.getElementById('eventArea').value;
+            const obs = document.getElementById('eventObs').value;
+
+            const startDateTime = new Date(`${date}T${startTime}`);
+            const now = new Date();
+
+            if (startDateTime < now) {
+                showMessage('error', '❌ No se pueden crear eventos en fechas u horarios pasados');
+                return;
+            }
+
+            const eventPayload = {
+                id: editingEventId,
+                titulo: title,
+                fecha: date,
+                horaInicio: startTime,
+                horaFin: endTime,
+                area: area,
+                observaciones: obs
+            };
+
+            try {
+                const action = editingEventId ? 'update' : 'create';
+                const res = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // evita preflight CORS con Apps Script
+                    body: JSON.stringify({ action, password: sessionPassword, event: eventPayload })
+                });
+                const data = await res.json();
+
+                if (!data.ok) {
+                    showMessage('error', `❌ ${data.error || 'Error al guardar el evento'}`);
+                    return;
+                }
+
+                showMessage('success', editingEventId ? '✏️ Evento actualizado correctamente' : '✅ Evento creado exitosamente');
+                editingEventId = null;
+                document.getElementById('eventForm').reset();
+                loadEvents();
+            } catch (err) {
+                console.error('Error saving event:', err);
+                showMessage('error', '❌ Error de conexión al guardar el evento');
+            }
+        });
+
+        async function editEvent(eventId) {
+            // Buscamos el evento entre los que ya están renderizados pidiendo la lista actual
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=list&password=${encodeURIComponent(sessionPassword)}`);
+                const data = await res.json();
+                if (!data.ok) {
+                    showMessage('error', '❌ No se pudo cargar el evento para editar');
+                    return;
+                }
+                const event = data.events.find(ev => ev.id === eventId);
+                if (!event) {
+                    showMessage('error', '❌ Evento no encontrado');
+                    return;
+                }
+
+                document.getElementById('eventTitle').value = event.titulo || '';
+                document.getElementById('eventDate').value = event.fecha;
+                document.getElementById('eventStartTime').value = event.horaInicio;
+                document.getElementById('eventEndTime').value = event.horaFin;
+                document.getElementById('eventArea').value = event.area || '';
+                document.getElementById('eventObs').value = event.observaciones || '';
+
+                editingEventId = eventId;
+
+                showMessage('success', '✏️ Editando evento. Modificá y guardá para aplicar cambios');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (err) {
+                console.error('Error editing event:', err);
+                showMessage('error', '❌ No se pudo cargar el evento para editar');
+            }
+        }
+
+        // ----- ELIMINAR -----
+        async function deleteEvent(eventId) {
+            if (!confirm('¿Estás seguro de que deseas eliminar este evento?')) {
+                return;
+            }
+
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'delete', password: sessionPassword, eventId })
+                });
+                const data = await res.json();
+
+                if (!data.ok) {
+                    showMessage('error', `❌ ${data.error || 'Error al eliminar el evento'}`);
+                    return;
+                }
+
+                showMessage('success', '✅ Evento eliminado exitosamente');
+                loadEvents();
+            } catch (err) {
+                console.error('Error deleting event:', err);
+                showMessage('error', '❌ Error al eliminar el evento');
+            }
+        }
+
+        function showMessage(type, message) {
+            const messageDiv = document.getElementById('formMessage');
+            messageDiv.className = type;
+            messageDiv.textContent = message;
+            setTimeout(() => {
+                messageDiv.className = '';
+                messageDiv.textContent = '';
+            }, 3000);
+        }
+
+        // Establecer fecha mínima como hoy
+        document.getElementById('eventDate').min = new Date().toISOString().split('T')[0];
+
+        // Auto-actualizar eventos cada 30 minutos (solo si ya está autenticado)
+        setInterval(() => {
+            if (sessionPassword) {
+                loadEvents();
+            }
+        }, 1800000); // 30 minutos
+    </script>
+</body>
+</html>
