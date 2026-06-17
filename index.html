@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#050505">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Gestión de Eventos">
+    <meta name="description" content="Sistema de gestión de eventos municipal">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="eventos.png">
     <title>Gestión de Eventos</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -55,6 +62,9 @@
             line-height: 1.5;
             -webkit-font-smoothing: antialiased;
             overflow-x: hidden;
+            overscroll-behavior-y: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         /* ===== ANIMATED BACKGROUND ===== */
@@ -361,6 +371,8 @@
             color: var(--text-primary);
             transition: var(--transition);
             outline: none;
+            -webkit-user-select: text;
+            user-select: text;
         }
 
         .auth-input:focus {
@@ -532,6 +544,8 @@
             color: var(--text-primary);
             transition: var(--transition);
             outline: none;
+            -webkit-user-select: text;
+            user-select: text;
         }
 
         .form-input:focus,
@@ -941,6 +955,30 @@
             z-index: 9999;
         }
 
+        /* ===== OFFLINE INDICATOR ===== */
+        .offline-bar {
+            position: fixed;
+            top: 72px;
+            left: 0;
+            right: 0;
+            background: var(--warning-dim);
+            color: var(--warning);
+            text-align: center;
+            padding: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            z-index: 99;
+            border-bottom: 1px solid rgba(255, 190, 11, 0.2);
+            animation: slideDown 0.3s ease-out;
+            display: none;
+        }
+
+        .offline-bar.visible {
+            display: block;
+        }
+
         /* ===== ANIMATIONS ===== */
         @keyframes spin {
             to { transform: rotate(360deg); }
@@ -1076,6 +1114,7 @@
     <div class="bg-mesh"></div>
     <div class="bg-grid"></div>
     <div class="scanline"></div>
+    <div id="offlineBar" class="offline-bar">◉ SIN CONEXIÓN — Modo offline activado</div>
 
     <div class="app">
         <!-- HEADER -->
@@ -1247,6 +1286,28 @@
 
         let sessionPassword = null;
         let editingEventId = null;
+
+        // ===== PWA: SERVICE WORKER REGISTRATION =====
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('SW registrado:', reg.scope))
+                    .catch(err => console.log('SW error:', err));
+            });
+        }
+
+        // ===== PWA: OFFLINE DETECTION =====
+        function updateOnlineStatus() {
+            const bar = document.getElementById('offlineBar');
+            if (navigator.onLine) {
+                bar.classList.remove('visible');
+            } else {
+                bar.classList.add('visible');
+            }
+        }
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        updateOnlineStatus();
 
         // ===== TIME SELECTS =====
         function populateTimeSelects() {
