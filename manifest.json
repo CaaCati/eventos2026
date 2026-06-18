@@ -1,6 +1,6 @@
 {
   "name": "Gestión de Eventos",
-  "short_name": "Eventos",
+  "short_name": "Eventos Salon",
   "description": "Sistema de gestión de eventos municipal",
   "start_url": ".",
   "display": "standalone",
