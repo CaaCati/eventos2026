@@ -1,4 +1,4 @@
-const CACHE_NAME = 'eventos-v3';
+const CACHE_NAME = 'eventos-v4';
 const STATIC_ASSETS = [
     './',
     './index.html',

@@ -166,64 +166,132 @@
             width: 100%;
         }
 
-        /* ===== AUTH ===== */
+        /* ===== AUTH (pantalla dividida) ===== */
         .auth-screen {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
             min-height: 100vh;
-            padding: 24px;
         }
 
-        .auth-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 48px 40px;
-            width: 100%;
-            max-width: 420px;
+        .auth-art {
+            position: relative;
+            overflow: hidden;
+            padding: 40px 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 32px;
+            background:
+                radial-gradient(90% 80% at 0% 100%, rgba(255, 107, 90, 0.5), transparent 60%),
+                radial-gradient(70% 70% at 100% 0%, rgba(94, 234, 212, 0.18), transparent 60%),
+                #16181F;
+        }
+
+        .auth-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
             animation: rise 420ms var(--ease-out) both;
         }
 
-        .auth-icon-wrap {
-            width: 72px;
-            height: 72px;
-            margin: 0 auto 24px;
-        }
-
-        .auth-icon {
-            width: 100%;
-            height: 100%;
-            border-radius: 20px;
-            background: var(--primary-soft);
+        .auth-logo {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: var(--primary);
+            color: var(--on-primary);
             display: grid;
             place-items: center;
         }
 
-        .auth-title {
-            font-size: 1.625rem;
+        .auth-logo svg.i { width: 21px; height: 21px; }
+
+        .auth-hero { animation: rise 480ms var(--ease-out) 60ms both; }
+
+        .auth-hero h1 {
+            font-size: clamp(1.75rem, 3.2vw, 2.75rem);
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+            font-weight: 700;
+            max-width: 12ch;
+        }
+
+        .auth-month {
+            margin-top: 10px;
+            font-size: 0.9375rem;
+            color: #C9CCD3;
+        }
+
+        .auth-cal {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            margin-top: 22px;
+            max-width: 340px;
+        }
+
+        .auth-cal span {
+            aspect-ratio: 1;
+            border-radius: 9px;
+            display: grid;
+            place-items: center;
+            font-size: 0.8125rem;
+            font-variant-numeric: tabular-nums;
+            color: #AAB0BB;
+            background: rgba(255, 255, 255, 0.06);
+            animation: rise 360ms var(--ease-out) both;
+            animation-delay: calc(120ms + var(--i, 0) * 8ms);
+        }
+
+        .auth-cal span.wd {
+            background: none;
+            font-size: 0.75rem;
             font-weight: 600;
-            text-align: center;
-            margin-bottom: 6px;
+            color: #7F8590;
+        }
+
+        .auth-cal span.blank { background: none; }
+        .auth-cal span.past { opacity: 0.55; }
+        .auth-cal span.has-ev { background: rgba(255, 107, 90, 0.35); color: #fff; font-weight: 600; }
+        .auth-cal span.today { background: var(--primary); color: var(--on-primary); font-weight: 700; }
+
+        .auth-panel {
+            display: grid;
+            place-items: center;
+            padding: 40px 32px;
+            background: var(--surface);
+            border-left: 1px solid var(--border);
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 380px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            animation: rise 420ms var(--ease-out) 80ms both;
+        }
+
+        .auth-title {
+            font-size: 1.75rem;
+            font-weight: 600;
             letter-spacing: -0.02em;
         }
 
         .auth-desc {
-            text-align: center;
             color: var(--muted);
             font-size: 0.9375rem;
-            margin-bottom: 32px;
+            margin-top: -10px;
+            margin-bottom: 6px;
         }
 
-        .auth-input-wrap {
-            position: relative;
-            margin-bottom: 16px;
-        }
+        .auth-input-wrap { position: relative; }
 
         .auth-input {
             width: 100%;
-            height: 52px;
-            padding: 0 16px 0 46px;
+            height: 54px;
+            padding: 0 52px 0 46px;
             background: var(--field);
             border: 1px solid var(--border);
             border-radius: var(--radius);
@@ -256,9 +324,26 @@
 
         .auth-input-wrap:focus-within .auth-input-icon { color: var(--primary); }
 
+        .auth-eye {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            border: 0;
+            border-radius: 10px;
+            background: transparent;
+            color: var(--muted);
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            transition: color 150ms ease, background-color 150ms ease;
+        }
+
         .auth-btn {
             width: 100%;
-            height: 52px;
+            height: 54px;
             background: var(--primary);
             color: var(--on-primary);
             border: none;
@@ -274,8 +359,37 @@
             transition: transform 140ms var(--ease-out), background-color 150ms ease;
         }
 
+        .auth-btn .arrow { transition: transform 200ms var(--ease-out); }
         .auth-btn:active:not(:disabled) { transform: scale(0.97); }
         .auth-btn:disabled { opacity: 0.6; cursor: progress; }
+
+        @media (hover: hover) and (pointer: fine) {
+            .auth-btn:hover:not(:disabled) .arrow { transform: translateX(3px); }
+            .auth-eye:hover { color: var(--text); background: var(--neutral-soft); }
+        }
+
+        .shake { animation: shake 360ms var(--ease-out); }
+
+        @keyframes shake {
+            0%, 100% { transform: none; }
+            20% { transform: translateX(-6px); }
+            40% { transform: translateX(5px); }
+            60% { transform: translateX(-3px); }
+            80% { transform: translateX(2px); }
+        }
+
+        @media (max-width: 860px) {
+            .auth-screen { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; }
+            .auth-art { padding: 20px 20px 22px; gap: 16px; }
+            .auth-hero h1 { max-width: none; font-size: 1.5rem; }
+            .auth-month { margin-top: 4px; font-size: 0.875rem; }
+            .auth-cal { gap: 4px; max-width: 250px; margin-top: 14px; }
+            .auth-cal span { border-radius: 7px; font-size: 0.75rem; }
+            .auth-cal span.wd { font-size: 0.6875rem; }
+            .auth-panel { border-left: 0; border-top: 1px solid var(--border); padding: 24px 20px 40px; align-items: start; }
+            .auth-card { gap: 14px; }
+            .auth-title { font-size: 1.5rem; }
+        }
 
         /* ===== DASHBOARD ===== */
         .dashboard {
@@ -611,26 +725,65 @@
         .day-label:first-child { margin-top: 0; }
         .day-label.today { color: var(--primary); }
 
-        /* ===== EVENT CARD ===== */
+        /* ===== EVENT CARD (bloque de fecha) ===== */
         .event-card {
             display: flex;
             gap: 14px;
-            padding: 14px 16px;
+            align-items: stretch;
+            padding: 12px;
             margin-bottom: 10px;
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: var(--radius);
+            border-radius: 16px;
             transition: border-color 150ms ease;
             animation: rise 380ms var(--ease-out) both;
             animation-delay: calc(var(--i, 0) * 45ms);
         }
 
+        @media (hover: hover) and (pointer: fine) {
+            .event-card:hover { border-color: var(--border-strong); }
+        }
 
-        .event-bar {
-            width: 4px;
-            border-radius: 4px;
-            background: var(--area, var(--muted));
+        .event-date {
+            position: relative;
+            overflow: hidden;
+            width: 64px;
             flex-shrink: 0;
+            border-radius: 12px;
+            padding: 10px 0 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: color-mix(in srgb, var(--area, var(--muted)) 14%, var(--surface));
+        }
+
+        .event-date::before {
+            content: '';
+            position: absolute;
+            inset: 0 0 auto;
+            height: 4px;
+            background: var(--area, var(--muted));
+        }
+
+        .event-date-m {
+            font-size: 0.6875rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: color-mix(in srgb, var(--area, var(--muted)) 70%, #ffffff);
+        }
+
+        .event-date-d {
+            font-size: 1.625rem;
+            font-weight: 700;
+            line-height: 1.05;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .event-date-w {
+            font-size: 0.6875rem;
+            color: var(--muted);
         }
 
         .event-body {
@@ -638,41 +791,35 @@
             min-width: 0;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-        }
-
-        .event-header {
-            display: flex;
             align-items: flex-start;
-            justify-content: space-between;
-            gap: 10px;
+            gap: 6px;
+            padding: 2px 0;
         }
 
         .event-title-text {
             font-size: 1rem;
             font-weight: 600;
-            line-height: 1.35;
+            line-height: 1.3;
             word-break: break-word;
         }
 
         .event-badge {
-            padding: 3px 10px;
+            padding: 2px 9px;
             border-radius: 999px;
             font-size: 0.75rem;
             font-weight: 600;
             white-space: nowrap;
-            flex-shrink: 0;
         }
 
-        .badge-today { background: var(--primary-soft); color: var(--primary); }
-        .badge-pending { background: var(--neutral-soft); color: var(--muted); }
+        .badge-soon { background: var(--primary-soft); color: var(--primary); }
+        .badge-later { background: var(--neutral-soft); color: var(--muted); }
         .badge-completed { background: var(--success-soft); color: var(--success); }
 
         .event-meta {
             display: flex;
             flex-wrap: wrap;
             align-items: center;
-            gap: 8px 14px;
+            gap: 6px 12px;
             font-size: 0.875rem;
             color: var(--muted);
         }
@@ -698,16 +845,47 @@
         .event-desc {
             font-size: 0.875rem;
             color: var(--muted);
-            line-height: 1.55;
-            padding: 10px 12px;
-            background: var(--field);
-            border-radius: var(--radius-sm);
+            line-height: 1.5;
             word-break: break-word;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .event-desc.expanded {
+            display: block;
+            -webkit-line-clamp: unset;
         }
 
         .event-actions {
             display: flex;
-            gap: 8px;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .icon-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--muted);
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            transition: transform 140ms var(--ease-out), background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+        }
+
+        .icon-btn svg.i { width: 16px; height: 16px; }
+        .icon-btn:active:not(:disabled) { transform: scale(0.94); }
+        .icon-btn:disabled { opacity: 0.5; cursor: progress; }
+        .icon-btn.danger { color: var(--danger); }
+
+        @media (hover: hover) and (pointer: fine) {
+            .icon-btn:hover:not(:disabled) { background: var(--neutral-soft); color: var(--text); border-color: var(--border-strong); }
+            .icon-btn.danger:hover:not(:disabled) { background: var(--danger-soft); color: var(--danger); border-color: transparent; }
         }
 
         .event-empty {
@@ -801,7 +979,7 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .card, .auth-card, .event-card, .alert, .offline-bar.visible, #formCardBody.active {
+            .card, .auth-card, .auth-brand, .auth-hero, .auth-cal span, .shake, .event-card, .alert, .offline-bar.visible, #formCardBody.active {
                 animation-name: fade !important;
                 animation-duration: 200ms !important;
                 animation-delay: 0ms !important;
@@ -837,8 +1015,9 @@
         @media (max-width: 480px) {
             .header-subtitle { display: none; }
             .card-count { display: none; }
-            .auth-card { padding: 36px 22px; }
-            .event-card { padding: 12px 14px; gap: 12px; }
+            .event-card { padding: 10px; gap: 12px; }
+            .event-date { width: 56px; }
+            .event-date-d { font-size: 1.375rem; }
             .events-toolbar .form-input { min-width: 0; flex-basis: calc(50% - 4px); }
             .events-toolbar .btn { flex: 1; }
         }
@@ -853,25 +1032,39 @@
     <div class="app">
         <!-- AUTH SCREEN -->
         <div id="authScreen" class="auth-screen">
-            <div class="auth-card">
-                <div class="auth-icon-wrap">
-                    <div class="auth-icon"><img src="data:image/png;base64,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" alt="Calendario" style="width:40px; height:40px; object-fit:contain;"></div>
+            <aside class="auth-art">
+                <div class="auth-brand">
+                    <span class="auth-logo"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+                    <span>Salón · Caá Catí</span>
                 </div>
-                <h1 class="auth-title">Gestión de Eventos</h1>
-                <p class="auth-desc">Ingresá tu contraseña para acceder al panel</p>
-
-                <div id="authMessage"></div>
-
-                <div class="auth-input-wrap">
-                    <input type="password" id="passwordInput" class="auth-input" placeholder="Contraseña del sistema" autofocus onkeydown="if(event.key==='Enter') handleAuth()">
-                    <span class="auth-input-icon"><svg class="i" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
+                <div class="auth-hero">
+                    <h1>Gestión de eventos municipales</h1>
+                    <div class="auth-month" id="authMonth"></div>
+                    <div class="auth-cal" id="authCal" aria-hidden="true"></div>
                 </div>
+            </aside>
 
-                <button id="loginBtn" class="auth-btn" onclick="handleAuth()">
-                    <span>Ingresar</span>
-                    <svg class="i" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-                </button>
-            </div>
+            <section class="auth-panel">
+                <div class="auth-card" id="authCard">
+                    <h2 class="auth-title">Bienvenido</h2>
+                    <p class="auth-desc">Ingresá la contraseña del sistema</p>
+
+                    <div id="authMessage"></div>
+
+                    <div class="auth-input-wrap">
+                        <span class="auth-input-icon"><svg class="i" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
+                        <input type="password" id="passwordInput" class="auth-input" placeholder="Contraseña" autofocus autocomplete="current-password" onkeydown="if(event.key==='Enter') handleAuth()">
+                        <button type="button" class="auth-eye" id="eyeBtn" onclick="togglePassword()" aria-label="Mostrar contraseña">
+                            <svg class="i" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                    </div>
+
+                    <button id="loginBtn" class="auth-btn" onclick="handleAuth()">
+                        <span>Ingresar</span>
+                        <svg class="i arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                    </button>
+                </div>
+            </section>
         </div>
 
         <!-- MAIN CONTENT -->
@@ -1176,6 +1369,69 @@
             const div = document.getElementById('authMessage');
             div.innerHTML = `<div class="alert alert-${type}">${ICONS.alert}<span>${message}</span></div>`;
             setTimeout(() => { div.innerHTML = ''; }, 4000);
+            if (type === 'error') {
+                const card = document.getElementById('authCard');
+                card.classList.remove('shake');
+                void card.offsetWidth;
+                card.classList.add('shake');
+            }
+        }
+
+        function togglePassword() {
+            const input = document.getElementById('passwordInput');
+            const btn = document.getElementById('eyeBtn');
+            const show = input.type === 'password';
+            input.type = show ? 'text' : 'password';
+            btn.setAttribute('aria-label', show ? 'Ocultar contraseña' : 'Mostrar contraseña');
+            input.focus();
+        }
+
+        // Calendario del mes en la pantalla de ingreso.
+        // Los días con eventos salen de la última vez que se cargó la lista en este dispositivo.
+        const EVENT_DAYS_KEY = 'eventos.diasConEventos';
+
+        function renderAuthCalendar() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth();
+            const monthName = now.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
+            document.getElementById('authMonth').textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+
+            let eventDays = [];
+            try { eventDays = JSON.parse(localStorage.getItem(EVENT_DAYS_KEY) || '[]'); } catch (e) {}
+
+            const firstWeekday = (new Date(year, month, 1).getDay() + 6) % 7; // lunes = 0
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const today = now.getDate();
+            const pad = n => String(n).padStart(2, '0');
+
+            let html = ['L', 'M', 'M', 'J', 'V', 'S', 'D'].map(d => `<span class="wd">${d}</span>`).join('');
+            for (let k = 0; k < firstWeekday; k++) html += '<span class="blank"></span>';
+            for (let d = 1; d <= daysInMonth; d++) {
+                const iso = `${year}-${pad(month + 1)}-${pad(d)}`;
+                const cls = d === today ? 'today' : eventDays.includes(iso) ? 'has-ev' : d < today ? 'past' : '';
+                html += `<span class="${cls}" style="--i:${d}">${d}</span>`;
+            }
+            document.getElementById('authCal').innerHTML = html;
+        }
+
+        function rememberEventDays(events) {
+            try {
+                const days = [...new Set(events.filter(ev => !isCompleted(ev)).map(ev => ev.fecha))];
+                localStorage.setItem(EVENT_DAYS_KEY, JSON.stringify(days));
+            } catch (e) {}
+        }
+
+        // Texto relativo: "Hoy", "Mañana", "En 13 días", "Hace 3 días"
+        function relativeDay(fecha) {
+            const date = new Date(fecha + 'T00:00:00');
+            const today = new Date(todayISO() + 'T00:00:00');
+            const diff = Math.round((date - today) / 86400000);
+            if (isNaN(diff)) return '';
+            if (diff === 0) return 'Hoy';
+            if (diff === 1) return 'Mañana';
+            if (diff === -1) return 'Ayer';
+            return diff > 0 ? `En ${diff} días` : `Hace ${-diff} días`;
         }
 
         // ===== EVENTS =====
@@ -1202,6 +1458,7 @@
                 }
 
                 currentEvents = data.events || [];
+                if (!from && !to) rememberEventDays(currentEvents);
                 renderEvents();
             } catch (err) {
                 console.error('Error loading events:', err);
@@ -1314,37 +1571,39 @@
         function createEventElement(event) {
             const div = document.createElement('div');
             const isCompleted = event.estado === 'completado';
-            const isToday = event.fecha === todayISO();
             div.className = `event-card status-${isCompleted ? 'completed' : 'pending'}`;
             div.style.setProperty('--area', AREA_COLORS[event.area] || 'var(--muted)');
 
+            // Bloque de fecha: mes, día y día de la semana
+            const date = new Date(event.fecha + 'T00:00:00');
+            const valid = !isNaN(date);
+            const mes = valid ? date.toLocaleDateString('es-AR', { month: 'short' }).replace('.', '') : '';
+            const dia = valid ? date.getDate() : '–';
+            const semana = valid ? date.toLocaleDateString('es-AR', { weekday: 'short' }).replace('.', '') : '';
+
+            const rel = relativeDay(event.fecha);
             const badge = isCompleted
-                ? ['badge-completed', 'Completado']
-                : isToday ? ['badge-today', 'Hoy'] : ['badge-pending', 'Pendiente'];
+                ? ['badge-completed', rel ? `Completado · ${rel.toLowerCase()}` : 'Completado']
+                : ['badge-soon', rel || 'Pendiente'];
 
             div.innerHTML = `
-                <span class="event-bar"></span>
+                <div class="event-date" aria-hidden="true">
+                    <span class="event-date-m">${mes}</span>
+                    <span class="event-date-d">${dia}</span>
+                    <span class="event-date-w">${semana}</span>
+                </div>
                 <div class="event-body">
-                    <div class="event-header">
-                        <div class="event-title-text">${escapeHtml(event.titulo)}</div>
-                        <span class="event-badge ${badge[0]}">${badge[1]}</span>
-                    </div>
-
+                    <span class="event-badge ${badge[0]}">${badge[1]}</span>
+                    <div class="event-title-text">${escapeHtml(event.titulo)}</div>
                     <div class="event-meta">
                         <span class="event-time">${ICONS.clock}${escapeHtml(event.horaInicio)} – ${escapeHtml(event.horaFin)}</span>
                         <span class="area-chip">${escapeHtml(event.area || 'Sin área')}</span>
                     </div>
-
-                    ${event.observaciones ? `<div class="event-desc">${escapeHtml(event.observaciones)}</div>` : ''}
-
-                    <div class="event-actions">
-                        <button class="btn btn-secondary btn-small" onclick='editEvent(${JSON.stringify(event.id)}, this)'>
-                            ${ICONS.edit}<span>Editar</span>
-                        </button>
-                        <button class="btn btn-danger btn-small" onclick='deleteEvent(${JSON.stringify(event.id)}, this)'>
-                            ${ICONS.trash}<span>Eliminar</span>
-                        </button>
-                    </div>
+                    ${event.observaciones ? `<div class="event-desc" title="Tocá para ver completo" onclick="this.classList.toggle('expanded')">${escapeHtml(event.observaciones)}</div>` : ''}
+                </div>
+                <div class="event-actions">
+                    <button class="icon-btn" title="Editar" aria-label="Editar evento" onclick='editEvent(${JSON.stringify(event.id)}, this)'>${ICONS.edit}</button>
+                    <button class="icon-btn danger" title="Eliminar" aria-label="Eliminar evento" onclick='deleteEvent(${JSON.stringify(event.id)}, this)'>${ICONS.trash}</button>
                 </div>
             `;
 
@@ -1463,7 +1722,7 @@
 
             btn.disabled = true;
             const originalContent = btn.innerHTML;
-            btn.innerHTML = '<span>Eliminando…</span>';
+            btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px"></span>';
 
             try {
                 const res = await fetch(SCRIPT_URL, {
@@ -1490,6 +1749,7 @@
 
         // Initialize
         populateTimeSelects();
+        renderAuthCalendar();
     </script>
 </body>
 </html>
