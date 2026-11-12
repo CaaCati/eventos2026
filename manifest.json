@@ -4,8 +4,8 @@
   "description": "Sistema de gestión de eventos municipal",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#050505",
-  "theme_color": "#050505",
+  "background_color": "#111318",
+  "theme_color": "#111318",
   "orientation": "portrait-primary",
   "scope": ".",
   "icons": [
