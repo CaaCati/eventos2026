@@ -543,6 +543,58 @@
             font-size: 0.875rem;
         }
 
+        /* ===== PENDIENTES / HISTORIAL ===== */
+        .view-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+            padding: 4px;
+            margin-bottom: 16px;
+            background: var(--field);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+
+        .view-tab {
+            height: 40px;
+            border: none;
+            border-radius: var(--radius-sm);
+            background: transparent;
+            color: var(--muted);
+            font-family: inherit;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: transform 140ms var(--ease-out), background-color 150ms ease, color 150ms ease;
+        }
+
+        .view-tab:active { transform: scale(0.97); }
+
+        .view-tab.active {
+            background: var(--surface);
+            color: var(--text);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .view-count {
+            min-width: 22px;
+            padding: 1px 7px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            background: var(--neutral-soft);
+            color: var(--muted);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .view-tab.active .view-count {
+            background: var(--primary-soft);
+            color: var(--primary);
+        }
+
         /* ===== DAY GROUPS ===== */
         .day-label {
             display: flex;
@@ -573,7 +625,6 @@
             animation-delay: calc(var(--i, 0) * 45ms);
         }
 
-        .event-card.status-completed { opacity: 0.6; animation-name: rise-dim; }
 
         .event-bar {
             width: 4px;
@@ -785,6 +836,7 @@
 
         @media (max-width: 480px) {
             .header-subtitle { display: none; }
+            .card-count { display: none; }
             .auth-card { padding: 36px 22px; }
             .event-card { padding: 12px 14px; gap: 12px; }
             .events-toolbar .form-input { min-width: 0; flex-basis: calc(50% - 4px); }
@@ -933,6 +985,15 @@
                             <span class="card-count" id="eventsCount"></span>
                         </div>
                         <div class="card-body">
+                            <div class="view-tabs" role="tablist">
+                                <button class="view-tab active" data-view="pending" role="tab" aria-selected="true" onclick="setEventsView('pending')">
+                                    Pendientes <span class="view-count" id="countPending">0</span>
+                                </button>
+                                <button class="view-tab" data-view="history" role="tab" aria-selected="false" onclick="setEventsView('history')">
+                                    Historial <span class="view-count" id="countHistory">0</span>
+                                </button>
+                            </div>
+
                             <div class="events-toolbar">
                                 <input type="date" id="filterFrom" class="form-input" aria-label="Desde" />
                                 <input type="date" id="filterTo" class="form-input" aria-label="Hasta" />
@@ -964,6 +1025,7 @@
         let sessionPassword = null;
         let editingEventId = null;
         let currentEvents = [];
+        let currentView = 'pending'; // 'pending' o 'history'
 
         // ===== PWA: SERVICE WORKER REGISTRATION =====
         if ('serviceWorker' in navigator) {
@@ -1119,8 +1181,6 @@
         // ===== EVENTS =====
         async function loadEvents(from = null, to = null) {
             const eventsList = document.getElementById('eventsList');
-            const eventsCount = document.getElementById('eventsCount');
-            eventsCount.textContent = '';
             eventsList.innerHTML = `
                 <div class="loading-state">
                     <div class="spinner"></div>
@@ -1141,50 +1201,84 @@
                     return;
                 }
 
-                const events = data.events;
-                currentEvents = events;
-
-                if (events.length === 0) {
-                    eventsList.innerHTML = `
-                        <div class="event-empty">
-                            <div class="event-empty-icon">${ICONS.calendar}</div>
-                            <div class="event-empty-text">No hay eventos en estas fechas</div>
-                            <div class="event-empty-hint">Cargá uno nuevo con el formulario</div>
-                        </div>
-                    `;
-                    return;
-                }
-
-                eventsCount.textContent = events.length === 1 ? '1 evento' : `${events.length} eventos`;
-
-                // Agrupar por día, respetando el orden en que llegan las fechas
-                const groups = new Map();
-                events.forEach(ev => {
-                    if (!groups.has(ev.fecha)) groups.set(ev.fecha, []);
-                    groups.get(ev.fecha).push(ev);
-                });
-
-                eventsList.innerHTML = '';
-                let i = 0;
-                groups.forEach((dayEvents, fecha) => {
-                    const label = document.createElement('div');
-                    label.className = 'day-label' + (fecha === todayISO() ? ' today' : '');
-                    label.textContent = formatDayLabel(fecha);
-                    eventsList.appendChild(label);
-
-                    dayEvents
-                        .slice()
-                        .sort((a, b) => String(a.horaInicio).localeCompare(String(b.horaInicio)))
-                        .forEach(event => {
-                            const el = createEventElement(event);
-                            el.style.setProperty('--i', Math.min(i++, 10));
-                            eventsList.appendChild(el);
-                        });
-                });
+                currentEvents = data.events || [];
+                renderEvents();
             } catch (err) {
                 console.error('Error loading events:', err);
                 eventsList.innerHTML = `<div class="alert alert-error">${ICONS.alert}<span>No se pudieron cargar los eventos. Probá de nuevo.</span></div>`;
             }
+        }
+
+        // ===== PENDIENTES / HISTORIAL =====
+        function isCompleted(ev) {
+            return ev.estado === 'completado';
+        }
+
+        function setEventsView(view) {
+            if (view === currentView) return;
+            currentView = view;
+            renderEvents();
+        }
+
+        function renderEvents() {
+            const eventsList = document.getElementById('eventsList');
+            const pending = currentEvents.filter(ev => !isCompleted(ev));
+            const done = currentEvents.filter(isCompleted);
+
+            document.getElementById('countPending').textContent = pending.length;
+            document.getElementById('countHistory').textContent = done.length;
+            document.querySelectorAll('.view-tab').forEach(tab => {
+                const active = tab.dataset.view === currentView;
+                tab.classList.toggle('active', active);
+                tab.setAttribute('aria-selected', active);
+            });
+            document.getElementById('eventsCount').textContent =
+                currentView === 'history' ? 'Del más reciente al más viejo' : 'Del más cercano al más lejano';
+
+            const byDateTime = (a, b) =>
+                String(a.fecha).localeCompare(String(b.fecha)) ||
+                String(a.horaInicio).localeCompare(String(b.horaInicio));
+
+            // Pendientes: el próximo primero. Historial: el más reciente primero.
+            const events = currentView === 'history'
+                ? done.slice().sort((a, b) => byDateTime(b, a))
+                : pending.slice().sort(byDateTime);
+
+            if (events.length === 0) {
+                const empty = currentView === 'history'
+                    ? ['Todavía no hay eventos completados', 'Cuando un evento termina, pasa a esta lista']
+                    : ['No hay eventos pendientes', 'Cargá uno nuevo con el formulario'];
+                eventsList.innerHTML = `
+                    <div class="event-empty">
+                        <div class="event-empty-icon">${ICONS.calendar}</div>
+                        <div class="event-empty-text">${empty[0]}</div>
+                        <div class="event-empty-hint">${empty[1]}</div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Agrupar por día
+            const groups = new Map();
+            events.forEach(ev => {
+                if (!groups.has(ev.fecha)) groups.set(ev.fecha, []);
+                groups.get(ev.fecha).push(ev);
+            });
+
+            eventsList.innerHTML = '';
+            let i = 0;
+            groups.forEach((dayEvents, fecha) => {
+                const label = document.createElement('div');
+                label.className = 'day-label' + (fecha === todayISO() && currentView !== 'history' ? ' today' : '');
+                label.textContent = formatDayLabel(fecha);
+                eventsList.appendChild(label);
+
+                dayEvents.forEach(event => {
+                    const el = createEventElement(event);
+                    el.style.setProperty('--i', Math.min(i++, 10));
+                    eventsList.appendChild(el);
+                });
+            });
         }
 
         function todayISO() {
